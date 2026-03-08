@@ -25,6 +25,7 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
   const [isDragging, setIsDragging] = useState(false);
   const contentRef = useRef(null);
   const nodeRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.innerHTML !== note.content) {
@@ -43,12 +44,6 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showMenu]);
 
-  const handleCommand = (e, cmd, value = null) => {
-    e.preventDefault();
-    document.execCommand(cmd, false, value);
-    updateContent();
-  };
-
   const updateContent = () => {
     if (contentRef.current) {
       const newContent = contentRef.current.innerHTML;
@@ -58,13 +53,30 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
     }
   };
 
-  const addImage = (e) => {
-    e.preventDefault();
-    const url = prompt("URL de l'image :");
-    if (url) {
-      document.execCommand('insertImage', false, url);
-      updateContent();
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = event.target.result;
+        // Placer le focus pour s'assurer que l'image s'insère au bon endroit
+        contentRef.current.focus();
+        document.execCommand('insertImage', false, imageUrl);
+        updateContent();
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const triggerImageUpload = (e) => {
+    e.preventDefault();
+    fileInputRef.current.click();
+  };
+
+  const handleCommand = (e, cmd, value = null) => {
+    e.preventDefault();
+    document.execCommand(cmd, false, value);
+    updateContent();
   };
 
   const changeTheme = (e, theme) => {
@@ -101,6 +113,14 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
           touchAction: 'none'
         }}
       >
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          className="hidden" 
+          accept="image/*" 
+          onChange={handleImageUpload} 
+        />
+        
         {/* Barre Notion Style */}
         <div className="drag-handle absolute top-0 left-0 right-0 h-10 flex items-center justify-between px-3 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity z-30 bg-gradient-to-b from-black/[0.02] to-transparent">
           <div className="flex items-center gap-1.5">
@@ -115,7 +135,7 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
             <button onMouseDown={(e) => { e.preventDefault(); setShowMenu(!showMenu); }} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
               <Type size={13} />
             </button>
-            <button onMouseDown={addImage} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <button onMouseDown={triggerImageUpload} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
               <ImageIcon size={13} />
             </button>
           </div>

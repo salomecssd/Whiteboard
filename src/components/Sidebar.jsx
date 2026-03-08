@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Search, Hash, Type, StickyNote, ChevronLeft, ChevronRight, Layout, Trash2 } from 'lucide-react';
+import { Plus, Search, Hash, Type, StickyNote, ChevronLeft, ChevronRight, Layout, Trash2, CheckSquare, Image as ImageIcon } from 'lucide-react';
 
 const Sidebar = ({ notes, addItem, deleteNote }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [search, setSearch] = useState('');
 
   const filteredNotes = notes.filter(n => 
-    n.content.toLowerCase().includes(search.toLowerCase())
+    (n.content || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -16,9 +16,9 @@ const Sidebar = ({ notes, addItem, deleteNote }) => {
       {/* Toggle Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute -right-3 top-10 bg-white border border-[#ececeb] rounded-full p-1 hover:bg-gray-50 cursor-pointer shadow-sm text-gray-400 hover:text-gray-600"
+        className={`absolute -right-4 top-10 bg-white border border-[#ececeb] rounded-full p-1.5 hover:bg-gray-50 cursor-pointer shadow-md text-gray-500 hover:text-black transition-all z-[110] ${!isOpen ? 'bg-[#37352f] text-white border-none -right-10' : ''}`}
       >
-        {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={18} />}
       </button>
 
       {isOpen && (
@@ -46,17 +46,25 @@ const Sidebar = ({ notes, addItem, deleteNote }) => {
           {/* Quick Actions */}
           <div className="px-2 mb-6">
             <p className="text-[10px] font-bold text-gray-400 uppercase px-2 mb-1 tracking-wider">Nouveau</p>
-            <button onClick={() => addItem('title')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group">
+            <button onClick={() => addItem('title')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group text-left">
               <Hash size={16} className="text-gray-400 group-hover:text-gray-600" />
               <span>Titre Libre</span>
             </button>
-            <button onClick={() => addItem('body')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group">
+            <button onClick={() => addItem('body')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group text-left">
               <Type size={16} className="text-gray-400 group-hover:text-gray-600" />
               <span>Texte Libre</span>
             </button>
-            <button onClick={() => addItem('note')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group">
+            <button onClick={() => addItem('note')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group text-left">
               <StickyNote size={16} className="text-gray-400 group-hover:text-gray-600" />
               <span>Note Classique</span>
+            </button>
+            <button onClick={() => addItem('todo')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group text-left">
+              <CheckSquare size={16} className="text-gray-400 group-hover:text-gray-600" />
+              <span>To-do List</span>
+            </button>
+            <button onClick={() => addItem('image')} className="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer group text-left">
+              <ImageIcon size={16} className="text-gray-400 group-hover:text-gray-600" />
+              <span>Image</span>
             </button>
           </div>
 
@@ -68,10 +76,14 @@ const Sidebar = ({ notes, addItem, deleteNote }) => {
             ) : (
               filteredNotes.map(note => (
                 <div key={note.id} className="flex items-center group">
-                  <button className="flex-grow flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer overflow-hidden">
-                    {note.type === 'title' ? <Hash size={14} /> : note.type === 'body' ? <Type size={14} /> : <StickyNote size={14} />}
+                  <button className="flex-grow flex items-center gap-2 px-2 py-1.5 text-sm text-[#37352f] hover:bg-[#efefed] rounded-md transition-colors cursor-pointer overflow-hidden text-left">
+                    {note.type === 'title' ? <Hash size={14} /> : 
+                     note.type === 'body' ? <Type size={14} /> : 
+                     note.type === 'todo' ? <CheckSquare size={14} /> : 
+                     note.type === 'image' ? <ImageIcon size={14} /> : 
+                     <StickyNote size={14} />}
                     <span className="truncate whitespace-nowrap text-xs">
-                      {note.content.replace(/<[^>]*>/g, '') || "Sans titre"}
+                      {note.type === 'image' ? "Image" : (note.content || '').replace(/<[^>]*>/g, '') || "Sans titre"}
                     </span>
                   </button>
                   <button 
