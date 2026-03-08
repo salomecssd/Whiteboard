@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { Trash2, Image as ImageIcon, Type, Maximize2, Palette, Type as TypeIcon } from 'lucide-react';
 
@@ -25,6 +25,13 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
   const contentRef = useRef(null);
   const nodeRef = useRef(null);
 
+  // Synchronise le contenu initial et les mises à jour externes uniquement
+  useEffect(() => {
+    if (contentRef.current && contentRef.current.innerHTML !== note.content) {
+      contentRef.current.innerHTML = note.content;
+    }
+  }, [note.content]);
+
   const handleCommand = (e, cmd, value = null) => {
     e.preventDefault();
     document.execCommand(cmd, false, value);
@@ -33,7 +40,10 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
 
   const updateContent = () => {
     if (contentRef.current) {
-      updateNote(note.id, { content: contentRef.current.innerHTML });
+      const newContent = contentRef.current.innerHTML;
+      if (newContent !== note.content) {
+        updateNote(note.id, { content: newContent });
+      }
     }
   };
 
@@ -76,7 +86,6 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
           backgroundColor: note.color || '#ffffff' 
         }}
       >
-        {/* Header / Drag Handle : Devenu ABSOLU pour ne plus pousser le texte */}
         <div className="drag-handle absolute top-0 left-0 right-0 h-8 bg-black/5 flex items-center justify-between px-2 cursor-move opacity-0 group-hover:opacity-100 transition-opacity z-30">
           <div className="flex gap-2">
             <button onMouseDown={(e) => { e.preventDefault(); deleteNote(note.id); }} className="text-gray-500 hover:text-red-500 cursor-pointer">
@@ -93,7 +102,6 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
           </div>
         </div>
 
-        {/* Toolbar Interne : S'affiche en haut et pousse le texte seulement quand ouvert */}
         {showMenu && (
           <div className="flex flex-col gap-2 p-2 pt-8 border-b border-black/5 bg-white/70 backdrop-blur-md text-[10px] font-bold uppercase select-none z-20">
             <div className="flex gap-2">
@@ -117,14 +125,12 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
           </div>
         )}
 
-        {/* Editor Zone : Commence tout en haut si le menu est fermé */}
         <div
           ref={contentRef}
           contentEditable
           suppressContentEditableWarning
           className={`p-4 outline-none flex-grow text-gray-800 prose prose-sm max-w-none min-h-[100px] selection:bg-blue-200/50 ${showMenu ? 'pt-2' : 'pt-4'}`}
           onBlur={updateContent}
-          dangerouslySetInnerHTML={{ __html: note.content }}
         />
         
         <style dangerouslySetInnerHTML={{ __html: `

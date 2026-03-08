@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { Trash2, Palette, GripHorizontal } from 'lucide-react';
 
@@ -16,9 +16,19 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
   const contentRef = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
 
+  // Synchronise le contenu initial et les mises à jour externes uniquement
+  useEffect(() => {
+    if (contentRef.current && contentRef.current.innerText !== note.content) {
+      contentRef.current.innerText = note.content;
+    }
+  }, [note.content]);
+
   const updateContent = () => {
     if (contentRef.current) {
-      updateNote(note.id, { content: contentRef.current.innerText });
+      const newContent = contentRef.current.innerText;
+      if (newContent !== note.content) {
+        updateNote(note.id, { content: newContent });
+      }
     }
   };
 
@@ -30,7 +40,7 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
   return (
     <Draggable
       nodeRef={nodeRef}
-      handle=".title-drag-handle" // Seule cette zone permet de déplacer
+      handle=".title-drag-handle" 
       defaultPosition={{ x: note.x, y: note.y }}
       onStop={(e, data) => updateNote(note.id, { x: data.x, y: data.y })}
     >
@@ -39,7 +49,6 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
         className="absolute group flex flex-col items-center p-2"
         style={{ zIndex: 40 }}
       >
-        {/* Barre d'outils et de déplacement (apparaît au survol) */}
         <div className="title-drag-handle flex items-center gap-2 bg-white border border-gray-100 shadow-sm px-2 py-1 rounded-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-move">
           <button 
             onMouseDown={(e) => { e.preventDefault(); deleteNote(note.id); }} 
@@ -60,7 +69,6 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
           </div>
         </div>
 
-        {/* Menu Couleur */}
         {showMenu && (
           <div className="absolute top-12 flex gap-1.5 bg-white p-2 rounded-full shadow-lg border border-gray-100 z-50 animate-in fade-in zoom-in duration-150">
             {COLORS.map(c => (
@@ -74,7 +82,6 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
           </div>
         )}
 
-        {/* Zone de texte */}
         <div
           ref={contentRef}
           contentEditable
@@ -83,10 +90,8 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
           className="text-6xl font-black tracking-tighter outline-none text-center leading-none whitespace-nowrap px-4 py-2"
           style={{ 
             color: note.color || '#4b5563',
-            // On ajoute une petite ombre portée si la couleur est trop claire (ex: blanc) pour qu'il soit visible
             textShadow: note.color === '#ffffff' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'
           }}
-          dangerouslySetInnerHTML={{ __html: note.content }}
         />
       </div>
     </Draggable>
