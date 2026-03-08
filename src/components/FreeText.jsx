@@ -3,15 +3,15 @@ import Draggable from 'react-draggable';
 import { Trash2, Palette, GripHorizontal } from 'lucide-react';
 
 const COLORS = [
-  { label: 'Gris Ardoise', value: '#334155' },
-  { label: 'Bleu Ciel', value: '#0ea5e9' },
-  { label: 'Rose Bonbon', value: '#f43f5e' },
-  { label: 'Vert Menthe', value: '#10b981' },
-  { label: 'Orange Flash', value: '#f97316' },
-  { label: 'Cyan', value: '#06b6d4' },
+  { label: 'Ardoise', value: '#475569' },
+  { label: 'Bleu', value: '#3b82f6' },
+  { label: 'Rose', value: '#f43f5e' },
+  { label: 'Vert', value: '#10b981' },
+  { label: 'Orange', value: '#f59e0b' },
+  { label: 'Turquoise', value: '#14b8a6' },
 ];
 
-const FreeTitle = ({ note, updateNote, deleteNote }) => {
+const FreeText = ({ note, updateNote, deleteNote }) => {
   const nodeRef = useRef(null);
   const contentRef = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
@@ -55,42 +55,42 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
   return (
     <Draggable
       nodeRef={nodeRef}
-      handle=".title-drag-handle" 
+      handle=".text-drag-handle" 
       defaultPosition={{ x: note.x, y: note.y }}
       onStop={(e, data) => updateNote(note.id, { x: data.x, y: data.y })}
     >
       <div 
         ref={nodeRef}
-        className="absolute group flex flex-col items-center p-2"
-        style={{ zIndex: 40 }}
+        className="absolute group flex flex-col p-2 max-w-lg"
+        style={{ zIndex: 35 }}
       >
-        <div className="title-drag-handle flex items-center gap-2 bg-white/90 backdrop-blur-md border border-gray-100 shadow-sm px-2.5 py-1.5 rounded-full mb-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-move scale-90">
+        <div className="text-drag-handle flex items-center gap-2 bg-white/90 backdrop-blur-md border border-gray-100 shadow-sm px-2 py-1 rounded-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-move w-fit scale-90">
           <button 
             onMouseDown={(e) => { e.preventDefault(); deleteNote(note.id); }} 
             className="p-1 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
           >
-            <Trash2 size={14} />
+            <Trash2 size={13} />
           </button>
           
           <button 
             onMouseDown={(e) => { e.preventDefault(); setShowMenu(!showMenu); }} 
             className="p-1 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
-            <Palette size={14} />
+            <Palette size={13} />
           </button>
           
           <div className="text-gray-200 px-1 border-l border-gray-100 ml-1">
-            <GripHorizontal size={14} />
+            <GripHorizontal size={13} />
           </div>
         </div>
 
         {showMenu && (
-          <div className="absolute top-14 flex gap-2 bg-white/95 backdrop-blur-md p-2 rounded-full shadow-xl border border-gray-100 z-50 animate-in fade-in zoom-in duration-150">
+          <div className="absolute top-10 flex gap-2 bg-white/95 backdrop-blur-md p-1.5 rounded-full shadow-xl border border-gray-100 z-50 animate-in fade-in zoom-in duration-150">
             {COLORS.map(c => (
               <button
                 key={c.value}
                 onMouseDown={(e) => changeColor(e, c.value)}
-                className={`w-4.5 h-4.5 rounded-full border border-black/5 cursor-pointer hover:scale-125 transition-transform ${note.color === c.value ? 'ring-2 ring-black/10' : ''}`}
+                className={`w-4 h-4 rounded-full border border-black/5 cursor-pointer hover:scale-125 transition-transform ${note.color === c.value ? 'ring-2 ring-black/10' : ''}`}
                 style={{ backgroundColor: c.value }}
                 title={c.label}
               />
@@ -103,9 +103,9 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
           contentEditable
           suppressContentEditableWarning
           onBlur={updateContent}
-          className="text-7xl font-black tracking-tighter outline-none text-center leading-[0.85] whitespace-nowrap px-6 py-2 selection:bg-blue-100/40"
+          className="text-xl font-medium outline-none leading-relaxed whitespace-pre-wrap px-3 py-1 selection:bg-blue-100/30 tracking-tight"
           style={{ 
-            color: note.color || '#334155',
+            color: note.color || '#475569',
           }}
         />
       </div>
@@ -113,4 +113,4 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
   );
 };
 
-export default FreeTitle;
+export default FreeText;

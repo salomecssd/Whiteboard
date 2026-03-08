@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Plus, Type, StickyNote as NoteIcon } from 'lucide-react';
 import StickyNote from './components/StickyNote';
 import FreeTitle from './components/FreeTitle';
+import FreeText from './components/FreeText';
+import Sidebar from './components/Sidebar';
 
 const App = () => {
   const [notes, setNotes] = useState(() => {
@@ -14,8 +15,6 @@ const App = () => {
     }
   });
 
-  const [showAddMenu, setShowAddMenu] = useState(false);
-
   useEffect(() => {
     localStorage.setItem('whiteboard-notes', JSON.stringify(notes));
   }, [notes]);
@@ -23,15 +22,16 @@ const App = () => {
   const addItem = (type) => {
     const newItem = {
       id: typeof uuidv4 === 'function' ? uuidv4() : Date.now().toString(),
-      type: type, // 'note' ou 'title'
-      x: window.innerWidth / 2 - 150,
-      y: window.innerHeight / 2 - 75,
-      content: type === 'note' ? '<h1>Nouvelle note</h1><p>Écrivez ici...</p>' : 'TITRE LIBRE',
+      type: type,
+      x: 300 + Math.random() * 50, // Apparaît près de la sidebar mais décalé
+      y: 100 + Math.random() * 50,
+      content: type === 'note' ? '<h1>Nouvelle note</h1><p>Écrivez ici...</p>' : 
+               type === 'title' ? 'TITRE LIBRE' : 'Nouveau texte libre...',
       width: 300,
-      color: type === 'note' ? '#ffffff' : '#4b5563'
+      color: type === 'note' ? '#ffffff' : 
+             type === 'title' ? '#334155' : '#475569'
     };
     setNotes(prev => [...prev, newItem]);
-    setShowAddMenu(false);
   };
 
   const updateNote = (id, data) => {
@@ -43,64 +43,38 @@ const App = () => {
   };
 
   return (
-    <div className="w-screen h-screen bg-[#fafafa] overflow-hidden relative font-sans text-gray-900">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" 
-           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} 
-      />
+    <div className="w-screen h-screen bg-white overflow-hidden flex font-sans text-[#37352f]">
+      {/* Sidebar Latérale Style Notion */}
+      <Sidebar notes={notes} addItem={addItem} deleteNote={deleteNote} />
 
-      <div className="absolute top-8 left-8 z-10 pointer-events-none select-none">
-        <h1 className="text-lg font-light tracking-widest uppercase text-gray-400">Whiteboard.</h1>
-      </div>
+      {/* Main Canvas Area */}
+      <div className="flex-grow h-full relative overflow-auto bg-[#ffffff]">
+        {/* Background Grid - Très subtil */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.015]" 
+             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '30px 30px' }} 
+        />
 
-      {/* Action Button & Menu */}
-      <div className="absolute bottom-8 right-8 z-50 flex flex-col items-end gap-3">
-        {showAddMenu && (
-          <div className="flex flex-col gap-2 mb-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
-            <button 
-              onClick={() => addItem('title')}
-              className="flex items-center gap-2 bg-white border border-gray-100 px-4 py-2 rounded-full shadow-lg hover:bg-gray-50 cursor-pointer text-sm font-medium"
-            >
-              <Type size={16} /> Titre Libre
-            </button>
-            <button 
-              onClick={() => addItem('note')}
-              className="flex items-center gap-2 bg-white border border-gray-100 px-4 py-2 rounded-full shadow-lg hover:bg-gray-50 cursor-pointer text-sm font-medium"
-            >
-              <NoteIcon size={16} /> Note Classique
-            </button>
-          </div>
-        )}
-        <button 
-          onClick={() => setShowAddMenu(!showAddMenu)}
-          className={`bg-white border border-gray-200 p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 group cursor-pointer ${showAddMenu ? 'rotate-45' : ''}`}
-        >
-          <Plus size={24} className="text-gray-600 group-hover:text-black" />
-        </button>
-      </div>
-
-      <div className="w-full h-full relative overflow-auto">
         {notes.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-300 pointer-events-none select-none">
-            Cliquez sur + pour commencer
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 pointer-events-none select-none">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 border border-gray-100">
+              <span className="text-2xl">📝</span>
+            </div>
+            <p className="text-sm font-medium">Votre espace est vide</p>
+            <p className="text-xs opacity-60">Ajoutez un bloc depuis la barre latérale</p>
           </div>
         )}
-        {notes.map(item => (
-          item.type === 'title' ? (
-            <FreeTitle 
-              key={item.id} 
-              note={item} 
-              updateNote={updateNote} 
-              deleteNote={deleteNote} 
-            />
-          ) : (
-            <StickyNote 
-              key={item.id} 
-              note={item} 
-              updateNote={updateNote} 
-              deleteNote={deleteNote} 
-            />
-          )
-        ))}
+
+        <div className="w-full h-full relative">
+          {notes.map(item => {
+            if (item.type === 'title') {
+              return <FreeTitle key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+            } else if (item.type === 'body') {
+              return <FreeText key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+            } else {
+              return <StickyNote key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+            }
+          })}
+        </div>
       </div>
     </div>
   );

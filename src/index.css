@@ -1,7 +1,41 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+  background-color: #fbfbfc;
+  color: #1a1a1a;
+}
+
 body {
   margin: 0;
-  overflow: hidden;
-  background-color: #fafafa;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personnalisée et discrète */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+/* Amélioration de la sélection de texte */
+::selection {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: inherit;
 }
