@@ -17,9 +17,23 @@ const App = () => {
     }
   });
 
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('whiteboard-theme');
+    return saved === 'dark';
+  });
+
   useEffect(() => {
     localStorage.setItem('whiteboard-notes', JSON.stringify(notes));
   }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem('whiteboard-theme', isDarkMode ? 'dark' : 'light');
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   const addItem = (type) => {
     const newItem = {
@@ -32,8 +46,8 @@ const App = () => {
                type === 'todo' ? 'Ma Liste' : 
                type === 'image' ? '' : 'Nouveau texte libre...',
       width: type === 'todo' ? 280 : 300,
-      color: type === 'note' ? '#ffffff' : 
-             type === 'title' ? '#334155' : '#475569',
+      color: type === 'note' ? (isDarkMode ? '#1e1e1e' : '#ffffff') : 
+             type === 'title' ? (isDarkMode ? '#e2e8f0' : '#334155') : (isDarkMode ? '#94a3b8' : '#475569'),
       todos: type === 'todo' ? [{ id: 1, text: '', completed: false }] : []
     };
     setNotes(prev => [...prev, newItem]);
@@ -48,35 +62,44 @@ const App = () => {
   };
 
   return (
-    <div className="w-screen h-screen bg-white overflow-hidden flex font-sans text-[#37352f]">
-      <Sidebar notes={notes} addItem={addItem} deleteNote={deleteNote} />
+    <div className={`w-screen h-screen flex font-sans transition-colors duration-300 ${isDarkMode ? 'bg-[#0f0f0f] text-gray-100' : 'bg-white text-[#37352f]'}`}>
+      <Sidebar 
+        notes={notes} 
+        addItem={addItem} 
+        deleteNote={deleteNote} 
+        isDarkMode={isDarkMode} 
+        setIsDarkMode={setIsDarkMode} 
+      />
 
-      <div className="flex-grow h-full relative overflow-auto bg-[#ffffff]">
-        <div className="absolute inset-0 pointer-events-none opacity-[0.015]" 
-             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '30px 30px' }} 
+      <div className="flex-grow h-full relative overflow-auto bg-transparent">
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" 
+             style={{ 
+               backgroundImage: `radial-gradient(${isDarkMode ? '#fff' : '#000'} 1px, transparent 1px)`, 
+               backgroundSize: '30px 30px' 
+             }} 
         />
 
         {notes.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 pointer-events-none select-none">
-            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 border border-gray-100">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border ${isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-gray-50 border-gray-100'}`}>
               <span className="text-2xl">📝</span>
             </div>
-            <p className="text-sm font-medium text-gray-400">Votre espace est vide</p>
+            <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}>Votre espace est vide</p>
           </div>
         )}
 
         <div className="w-full h-full relative">
           {notes.map(item => {
             if (item.type === 'title') {
-              return <FreeTitle key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+              return <FreeTitle key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} isDarkMode={isDarkMode} />;
             } else if (item.type === 'body') {
-              return <FreeText key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+              return <FreeText key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} isDarkMode={isDarkMode} />;
             } else if (item.type === 'todo') {
-              return <TodoNote key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+              return <TodoNote key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} isDarkMode={isDarkMode} />;
             } else if (item.type === 'image') {
-              return <ImageBlock key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+              return <ImageBlock key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} isDarkMode={isDarkMode} />;
             } else {
-              return <StickyNote key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} />;
+              return <StickyNote key={item.id} note={item} updateNote={updateNote} deleteNote={deleteNote} isDarkMode={isDarkMode} />;
             }
           })}
         </div>

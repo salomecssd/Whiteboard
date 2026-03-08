@@ -11,7 +11,7 @@ const COLORS = [
   { label: 'Cyan', value: '#06b6d4' },
 ];
 
-const FreeTitle = ({ note, updateNote, deleteNote }) => {
+const FreeTitle = ({ note, updateNote, deleteNote, isDarkMode }) => {
   const nodeRef = useRef(null);
   const contentRef = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
@@ -64,7 +64,7 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
         className="absolute group flex flex-col items-center p-2"
         style={{ zIndex: 40 }}
       >
-        <div className="title-drag-handle flex items-center gap-2 bg-white/90 backdrop-blur-md border border-gray-100 shadow-sm px-2.5 py-1.5 rounded-full mb-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-move scale-90">
+        <div className={`title-drag-handle flex items-center gap-2 border shadow-sm px-2.5 py-1.5 rounded-full mb-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-move scale-90 ${isDarkMode ? 'bg-zinc-900/90 border-zinc-800 backdrop-blur-md' : 'bg-white/90 border-gray-100 backdrop-blur-md'}`}>
           <button 
             onMouseDown={(e) => { e.preventDefault(); deleteNote(note.id); }} 
             className="p-1 text-gray-400 hover:text-red-400 transition-colors cursor-pointer"
@@ -74,18 +74,18 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
           
           <button 
             onMouseDown={(e) => { e.preventDefault(); setShowMenu(!showMenu); }} 
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            className="p-1 text-gray-400 hover:text-gray-300 transition-colors cursor-pointer"
           >
             <Palette size={14} />
           </button>
           
-          <div className="text-gray-200 px-1 border-l border-gray-100 ml-1">
+          <div className={`px-1 border-l ml-1 ${isDarkMode ? 'text-gray-600 border-zinc-800' : 'text-gray-200 border-gray-100'}`}>
             <GripHorizontal size={14} />
           </div>
         </div>
 
         {showMenu && (
-          <div className="absolute top-14 flex gap-2 bg-white/95 backdrop-blur-md p-2 rounded-full shadow-xl border border-gray-100 z-50 animate-in fade-in zoom-in duration-150">
+          <div className={`absolute top-14 flex gap-2 p-2 rounded-full shadow-xl border z-50 animate-in fade-in zoom-in duration-150 ${isDarkMode ? 'bg-zinc-900/95 border-zinc-800 backdrop-blur-md' : 'bg-white/95 border-gray-100 backdrop-blur-md'}`}>
             {COLORS.map(c => (
               <button
                 key={c.value}
@@ -103,9 +103,9 @@ const FreeTitle = ({ note, updateNote, deleteNote }) => {
           contentEditable
           suppressContentEditableWarning
           onBlur={updateContent}
-          className="text-7xl font-black tracking-tighter outline-none text-center leading-[0.85] whitespace-nowrap px-6 py-2 selection:bg-blue-100/40"
+          className="text-7xl font-black tracking-tighter outline-none text-center leading-[0.85] whitespace-nowrap px-6 py-2 selection:bg-blue-500/20"
           style={{ 
-            color: note.color || '#334155',
+            color: note.color || (isDarkMode ? '#e2e8f0' : '#334155'),
           }}
         />
       </div>

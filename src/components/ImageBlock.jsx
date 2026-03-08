@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { Trash2, Image as ImageIcon, GripVertical, Upload, AlertCircle } from 'lucide-react';
 
-const ImageBlock = ({ note, updateNote, deleteNote }) => {
+const ImageBlock = ({ note, updateNote, deleteNote, isDarkMode }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState(null);
   const nodeRef = useRef(null);
@@ -84,7 +84,7 @@ const ImageBlock = ({ note, updateNote, deleteNote }) => {
     >
       <div 
         ref={nodeRef}
-        className={`absolute bg-white border border-[#ececeb] shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)] flex flex-col group rounded-xl overflow-hidden ${isDragging ? 'cursor-grabbing select-none' : 'transition-[shadow,background-color] duration-200'}`}
+        className={`absolute border shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)] flex flex-col group rounded-xl overflow-hidden ${isDarkMode ? 'bg-zinc-900 border-[#2b2b2b]' : 'bg-white border-[#ececeb]'} ${isDragging ? 'cursor-grabbing select-none' : 'transition-[shadow,background-color] duration-200'}`}
         style={{ 
           width: note.width || 300, 
           height: note.height || 220,
@@ -97,21 +97,21 @@ const ImageBlock = ({ note, updateNote, deleteNote }) => {
       >
         <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
 
-        <div className="drag-handle h-8 flex items-center justify-between px-3 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm absolute top-0 left-0 right-0 z-20">
+        <div className={`drag-handle h-8 flex items-center justify-between px-3 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity absolute top-0 left-0 right-0 z-20 ${isDarkMode ? 'bg-zinc-800/90 backdrop-blur-sm' : 'bg-white/90 backdrop-blur-sm'}`}>
            <div className="flex items-center gap-1.5">
-            <GripVertical size={14} className="text-gray-300" />
+            <GripVertical size={14} className="text-gray-400" />
             <button onMouseDown={(e) => { e.preventDefault(); deleteNote(note.id); }} className="text-gray-400 hover:text-red-400 transition-colors cursor-pointer">
               <Trash2 size={13} />
             </button>
           </div>
-          <button onClick={() => fileInputRef.current.click()} className="text-[10px] font-bold uppercase tracking-wider text-gray-400 hover:text-black flex items-center gap-1 cursor-pointer">
+          <button onClick={() => fileInputRef.current.click()} className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer ${isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-black'}`}>
             <Upload size={10} /> Remplacer
           </button>
         </div>
 
-        <div className="flex-grow relative bg-[#f9f9f8] overflow-hidden flex items-center justify-center">
+        <div className={`flex-grow relative overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-zinc-800/30' : 'bg-[#f9f9f8]'}`}>
           {error && (
-            <div className="absolute top-2 left-2 right-2 bg-red-50 text-red-600 text-[10px] p-2 rounded border border-red-100 flex items-center gap-2 z-30">
+            <div className={`absolute top-2 left-2 right-2 text-[10px] p-2 rounded border flex items-center gap-2 z-30 ${isDarkMode ? 'bg-red-900/20 text-red-400 border-red-900/30' : 'bg-red-50 text-red-600 border-red-100'}`}>
               <AlertCircle size={12} /> {error}
             </div>
           )}
@@ -124,12 +124,12 @@ const ImageBlock = ({ note, updateNote, deleteNote }) => {
               onLoad={() => setError(null)}
             />
           ) : (
-            <button onClick={() => fileInputRef.current.click()} className="flex flex-col items-center gap-3 p-8 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer w-full h-full">
-              <div className="w-12 h-12 bg-white border border-gray-100 shadow-sm rounded-2xl flex items-center justify-center text-gray-300 group-hover:text-blue-500 transition-colors">
+            <button onClick={() => fileInputRef.current.click()} className="flex flex-col items-center gap-3 p-8 text-gray-500 hover:text-gray-300 transition-colors cursor-pointer w-full h-full">
+              <div className={`w-12 h-12 border shadow-sm rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-zinc-800 border-zinc-700 text-zinc-500' : 'bg-white border-gray-100 text-gray-300'}`}>
                 <ImageIcon size={24} />
               </div>
               <div className="text-center">
-                <p className="text-[11px] font-bold text-[#37352f]">Ajouter une image</p>
+                <p className={`text-[11px] font-bold ${isDarkMode ? 'text-gray-400' : 'text-[#37352f]'}`}>Ajouter une image</p>
               </div>
             </button>
           )}

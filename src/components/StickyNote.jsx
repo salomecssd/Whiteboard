@@ -20,12 +20,27 @@ const TEXT_COLORS = [
   { label: 'Orange', value: '#f97316' },
 ];
 
-const StickyNote = ({ note, updateNote, deleteNote }) => {
+const StickyNote = ({ note, updateNote, deleteNote, isDarkMode }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const contentRef = useRef(null);
   const nodeRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const getBorderColor = () => {
+    if (note.borderColor) return note.borderColor;
+    return isDarkMode ? '#2b2b2b' : '#e2e8f0';
+  };
+
+  const getBgColor = () => {
+    if (note.color) return note.color;
+    return isDarkMode ? '#1e1e1e' : '#ffffff';
+  };
+
+  const getTextColor = () => {
+    if (note.textColor) return note.textColor;
+    return isDarkMode ? '#e2e8f0' : '#475569';
+  };
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.innerHTML !== note.content) {
@@ -108,8 +123,8 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
           resize: 'both', 
           overflow: 'hidden', 
           zIndex: isDragging ? 1000 : 50,
-          backgroundColor: note.color || '#ffffff',
-          border: `1.5px solid ${note.borderColor || '#e2e8f0'}`,
+          backgroundColor: getBgColor(),
+          border: `1.5px solid ${getBorderColor()}`,
           touchAction: 'none'
         }}
       >
@@ -122,9 +137,9 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
         />
         
         {/* Barre Notion Style */}
-        <div className="drag-handle absolute top-0 left-0 right-0 h-10 flex items-center justify-between px-3 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity z-30 bg-gradient-to-b from-black/[0.02] to-transparent">
+        <div className={`drag-handle absolute top-0 left-0 right-0 h-10 flex items-center justify-between px-3 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity z-30 ${isDarkMode ? 'bg-gradient-to-b from-white/[0.05] to-transparent' : 'bg-gradient-to-b from-black/[0.02] to-transparent'}`}>
           <div className="flex items-center gap-1.5">
-            <div className="text-gray-300 p-0.5">
+            <div className="text-gray-400 p-0.5">
               <GripVertical size={14} />
             </div>
             <button onMouseDown={(e) => { e.preventDefault(); deleteNote(note.id); }} className="text-gray-400 hover:text-red-400 transition-colors cursor-pointer">
@@ -132,32 +147,32 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
             </button>
           </div>
           <div className="flex gap-2">
-            <button onMouseDown={(e) => { e.preventDefault(); setShowMenu(!showMenu); }} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <button onMouseDown={(e) => { e.preventDefault(); setShowMenu(!showMenu); }} className="text-gray-400 hover:text-gray-300 transition-colors cursor-pointer">
               <Type size={13} />
             </button>
-            <button onMouseDown={triggerImageUpload} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+            <button onMouseDown={triggerImageUpload} className="text-gray-400 hover:text-gray-300 transition-colors cursor-pointer">
               <ImageIcon size={13} />
             </button>
           </div>
         </div>
 
         {showMenu && (
-          <div className="flex flex-col gap-2.5 p-3 pt-10 border-b border-black/[0.02] bg-white/90 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider select-none z-20">
+          <div className={`flex flex-col gap-2.5 p-3 pt-10 border-b text-[10px] font-bold uppercase tracking-wider select-none z-20 ${isDarkMode ? 'bg-zinc-900/90 border-white/[0.05] backdrop-blur-md' : 'bg-white/90 border-black/[0.02] backdrop-blur-md'}`}>
             <div className="flex gap-2">
-              <button onMouseDown={(e) => handleCommand(e, 'formatBlock', 'h1')} className="px-2 py-1 hover:bg-black/5 rounded cursor-pointer text-gray-600">H1</button>
-              <button onMouseDown={(e) => handleCommand(e, 'formatBlock', 'h2')} className="px-2 py-1 hover:bg-black/5 rounded cursor-pointer text-gray-600">H2</button>
-              <button onMouseDown={(e) => handleCommand(e, 'bold')} className="px-2 py-1 hover:bg-black/5 rounded cursor-pointer font-black text-gray-800">B</button>
-              <button onMouseDown={(e) => handleCommand(e, 'insertUnorderedList')} className="px-2 py-1 hover:bg-black/5 rounded cursor-pointer text-gray-600">Liste</button>
+              <button onMouseDown={(e) => handleCommand(e, 'formatBlock', 'h1')} className={`px-2 py-1 rounded cursor-pointer ${isDarkMode ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-gray-600'}`}>H1</button>
+              <button onMouseDown={(e) => handleCommand(e, 'formatBlock', 'h2')} className={`px-2 py-1 rounded cursor-pointer ${isDarkMode ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-gray-600'}`}>H2</button>
+              <button onMouseDown={(e) => handleCommand(e, 'bold')} className={`px-2 py-1 rounded cursor-pointer font-black ${isDarkMode ? 'hover:bg-white/10 text-gray-100' : 'hover:bg-black/5 text-gray-800'}`}>B</button>
+              <button onMouseDown={(e) => handleCommand(e, 'insertUnorderedList')} className={`px-2 py-1 rounded cursor-pointer ${isDarkMode ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-black/5 text-gray-600'}`}>Liste</button>
             </div>
-            <div className="h-px bg-black/[0.05] my-0.5" />
+            <div className={`h-px my-0.5 ${isDarkMode ? 'bg-white/[0.05]' : 'bg-black/[0.05]'}`} />
             <div className="flex gap-2 items-center">
-              <Palette size={11} className="text-gray-300 mr-1" />
+              <Palette size={11} className="text-gray-500 mr-1" />
               {NOTE_THEMES.map(t => (
                 <button key={t.bg} onMouseDown={(e) => changeTheme(e, t)} className={`w-4 h-4 rounded-full border border-black/5 cursor-pointer hover:scale-125 transition-transform ${note.color === t.bg ? 'ring-2 ring-black/10' : ''}`} style={{ backgroundColor: t.bg }} />
               ))}
             </div>
             <div className="flex gap-2 items-center">
-              <TypeIcon size={11} className="text-gray-300 mr-1" />
+              <TypeIcon size={11} className="text-gray-500 mr-1" />
               {TEXT_COLORS.map(c => (
                 <button key={c.value} onMouseDown={(e) => changeTextColor(e, c.value)} className="w-4 h-4 rounded-full border border-black/5 cursor-pointer hover:scale-125 transition-transform" style={{ backgroundColor: c.value }} />
               ))}
@@ -169,8 +184,8 @@ const StickyNote = ({ note, updateNote, deleteNote }) => {
           ref={contentRef}
           contentEditable
           suppressContentEditableWarning
-          className={`p-5 outline-none flex-grow prose prose-sm max-w-none min-h-[100px] selection:bg-blue-100/30 ${showMenu ? 'pt-2' : 'pt-6'}`}
-          style={{ color: note.textColor || '#475569' }}
+          className={`p-5 outline-none flex-grow prose prose-sm max-w-none min-h-[100px] selection:bg-blue-500/20 ${showMenu ? 'pt-2' : 'pt-6'}`}
+          style={{ color: getTextColor() }}
           onBlur={updateContent}
         />
         
