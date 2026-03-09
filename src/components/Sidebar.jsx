@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { Plus, Search, Hash, Type, StickyNote, ChevronLeft, ChevronRight, Layout, Trash2, CheckSquare, Image as ImageIcon, Moon, Sun } from 'lucide-react';
 
-const Sidebar = ({ notes, addItem, deleteNote, isDarkMode, setIsDarkMode }) => {
+const Sidebar = ({ notes, addItem, deleteNote, isDarkMode, setIsDarkMode, scrollToPage, currentPage }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [search, setSearch] = useState('');
 
   const filteredNotes = notes.filter(n => 
-    (n.content || '').toLowerCase().includes(search.toLowerCase())
+    (n.content || '').toLowerCase().includes(search.toLowerCase()) ||
+    (n.title || '').toLowerCase().includes(search.toLowerCase())
   );
+
+  const pages = [
+    { id: 0, label: 'Tableau Principal', icon: '1' },
+    { id: 1, label: 'Espace Secondaire', icon: '2' },
+    { id: 2, label: 'Brouillon / Archive', icon: '3' },
+  ];
 
   return (
     <div 
@@ -40,6 +47,25 @@ const Sidebar = ({ notes, addItem, deleteNote, isDarkMode, setIsDarkMode }) => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+            </div>
+          </div>
+
+          {/* Pages Navigation */}
+          <div className="px-2 mb-6">
+            <p className="text-[10px] font-bold text-gray-400 uppercase px-2 mb-1 tracking-wider">Pages</p>
+            <div className="flex flex-col gap-0.5">
+              {pages.map((page) => (
+                <button 
+                  key={page.id}
+                  onClick={() => scrollToPage(page.id)}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md transition-colors cursor-pointer group text-left ${currentPage === page.id ? (isDarkMode ? 'bg-zinc-800 text-white' : 'bg-[#efefed] text-black font-medium') : (isDarkMode ? 'text-gray-400 hover:bg-zinc-800/50' : 'text-[#37352f] hover:bg-[#efefed]/50')}`}
+                >
+                  <div className={`w-4 h-4 rounded-sm flex items-center justify-center text-[9px] border ${currentPage === page.id ? 'border-blue-500 text-blue-500' : 'border-gray-400 text-gray-400'}`}>
+                    {page.icon}
+                  </div>
+                  <span className="truncate">{page.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
